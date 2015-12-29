@@ -1,0 +1,58 @@
+---
+title: "Polar projections for Manifold"
+author: "Michael Sumner"
+date: '`r format(Sys.Date())`'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+curdir <- "D:/twotera/GIT/ManifoldSuggestions"
+
+library(rgdal)
+library(maptools)
+library(raster)
+```
+
+Write out unprojected and projected versions of Antarctica polygons to MIF and SHP format, also rasterize the layer and write to GeoTIFF. 
+
+```{r}
+fp <- file.path(curdir, "PolarProjections", "data")
+library(rgdal)
+library(maptools)
+library(raster)
+data(wrld_simpl)
+antarctica <- subset(wrld_simpl, NAME == "Antarctica")
+writeOGR(antarctica, fp, "antarctica", driver = "MapInfo File", dataset_options = "FORMAT=MIF")
+writeOGR(antarctica, fp, "antarctica", driver = "ESRI Shapefile") 
+
+llgrid <- rasterize(antarctica, raster(extent(antarctica), nrow = 30, ncol = 360, crs = projection(antarctica)))
+ writeRaster(llgrid, file.path(fp, "llgrid.tif"))
+ 
+## reproject
+prj <- c(laea = "+proj=laea +lat_0=-90 +lon_0=147 +ellps=WGS84", 
+         stere = "+proj=stere +lat_0=-90 +lon_0=147 +ellps=WGS84")
+
+
+for (i in seq_along(prj)) {
+  nm <- names(prj)[i]
+  p_layer <- spTransform(antarctica, prj[nm])
+  writeOGR(p_layer, fp, sprintf("antarctica_%s", nm), driver = "MapInfo File", dataset_options = "FORMAT=MIF")
+  writeOGR(p_layer, fp, sprintf("antarctica_%s", nm), driver = "ESRI Shapefile")
+  pgrid <- projectExtent(llgrid, prj[nm])
+  res(pgrid) <- 1e5
+  grid <- rasterize(p_layer, pgrid)
+ writeRaster(grid, file.path(fp, sprintf("%s_grid.tif", nm)))
+}
+```
+
+# Environment and software
+     
+This document was built on the `r format(Sys.Date(), "%d")` of `r format(Sys.Date(), "%B, %Y")` in the following context. 
+     
+```{r}
+devtools::session_info()
+```
+    
+
+
