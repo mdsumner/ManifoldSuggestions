@@ -1,5 +1,29 @@
 Hello, 
 
+There's an inconsistency on import for the Assign Projection with a surface. It's like the scaling is not applied correctly
+until the Assign Projection dialog is confirmed - but it is applied correctly afterwards, without making any actual changes to 
+the parameters. 
+
+
+I've attached 1 GeoTIFF file and a Manifold .map project. 
+
+The Antarctica.map project has a single drawing in it, "Antarctica Drawing" and these steps illustrate a problem with 
+the automatic Assign Projection that is applied to a surface on import. 
+
+1. Open Antarctica.map
+2. File/Import/Surface/TIF - import the file "laea_grid.tif"
+3. Create a new Map, and include only the surface "laea_grid" in it
+4. Open the map, and drag the "Antarctica Drawing" into it. See that the scale is not correct, the Antarctica drawing is
+much too big relative to the laea_grid data (the surface is just a "mask", with a value for "land" and a value for "not land")
+5. Open Assign Projection on the laea_grid surface and click OK. The map is now correct. 
+
+Cheers, Mike. 
+
+
+
+
+Hello, 
+
 I've attached versions of a polygon drawing of Antarctica in MIF and SHP format, in Longitude/Latitude and two polar projections. 
 
 When importing the MIF files the Stereographic projection is not applied, though the Lambert Azimuthal Equal Area and parameters is fine. With the shapefiles the projected drawings don't get the correct details from the .prj. 
