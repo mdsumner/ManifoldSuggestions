@@ -1,0 +1,14 @@
+---
+title: "Point clouds"
+author: "Michael Sumner"
+date: "4 January 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+http://gis.stackexchange.com/questions/175454/are-pdal-or-pcl-capable-of-producing-lidar-grid-metrics
+
+
