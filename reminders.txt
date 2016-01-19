@@ -1,0 +1,14 @@
+GeoTIFF export
+
+BigTIFF support
+
+more tiling / compression options (also check which work)
+
+NetCDF-4 and HDF-5
+
+mesh drawings, like the L3bins
+
+vertical/horizontal flash lines for Control Point creation
+
+more options for Assign Projection on raster - set extent for instance
+
