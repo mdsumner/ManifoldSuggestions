@@ -1,0 +1,81 @@
+---
+title: "Discovering tables in Manifold via ODBC"
+author: "Michael Sumner"
+date: "20 January 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(manifoldr)
+library(RODBC)
+library(raster)
+```
+
+
+In this Project "Components.Map" I have a number of components, to try
+different kinds of queries. I am using R with the CRAN package `RODBC`
+and my in-development package `manifoldr`.
+
+```{r}
+library(RODBC)  ## install.packages("RODBC")
+library(manifoldr) ## https://github.com/mdsumner/manifoldr
+mapfile <- "C:/temp/Components.map"
+con <- odbcConnectManifold(mapfile)
+print(con)  ## summary of the connection
+```
+
+```{r, echo = FALSE, eval = TRUE}
+library(manifoldr)
+library(RODBC)
+library(raster)
+colors <- sqlQuery(con, sprintf("SELECT [Red (I)], [Green (I)], [Blue (I)] FROM [%s]", "Image"))
+georef <- 
+  sqlQuery(con, sprintf("SELECT TOP 1 PixelsByX([%s]) AS [ncol], PixelsByY([%s]) AS [nrow] FROM [%s]", "Image", "Image", "Image"))
+
+r0 <- raster(xmn = 0, ymn = 0, xmx = georef$ncol, ymx = georef$nrow, nrow = georef$nrow, ncol = georef$ncol, crs = "+proj=laea")
+r <- setValues(brick(r0, r0, r0), as.matrix(colors))
+plotRGB(r, asp = 1, interpolate = TRUE)
+``` 
+
+
+If I ask what tables are available, it's not comprehensive. 
+
+```{r}
+sqlTables(con)
+```
+
+I can read from `LoneTable`, `DrawingOwnedTable`, and `QuerySurface` unsurprisingly. 
+
+```{r}
+sqlQuery(con, "SELECT * FROM [LoneTable]")
+sqlQuery(con, "SELECT [ID], [X (I)], [Latitude (I)] FROM [DrawingOwnedTable]")
+sqlQuery(con, "SELECT [Height (I)], [Center Y (I)] FROM [QuerySurface]")  ## SELECT TOP 1 * [From QuerySurface]
+
+```
+
+But I can also read from `Drawing` and `Surface`. 
+
+```{r}
+sqlQuery(con, "SELECT [ID] FROM [Drawing]")
+sqlQuery(con, "SELECT TOP 2 [Easting (I)] FROM [Surface]")
+```
+
+This is fine except that I can't programmatically get access to the
+existence of `Surface` via ODBC, whereas with the Drawing, Query and
+stand alone Table I only need list them from `sqlTables` and query the
+column names in turn to get a summary of the contents in the .map
+file.
+
+I also cannot tell the type of any of the tables without prior knowledge, is that right? I can try for Geom (I) and Surface virtual table columns, but there's no guarantee that any result 
+Is this a limitation of the ODBC interface, or one of the RODBC
+package, or one of Manifold's ODBC driver?
+
+
+
+Thanks!
+
+
+```{r}
+odbcClose(con)
+```
