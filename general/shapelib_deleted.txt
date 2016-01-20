@@ -1,0 +1,39 @@
+From: Michael Sumner <mdsumner@gmail.com>
+Date: Wed, 20 Jan 2016 at 12:48
+Subject: feature suggestion - shapefile / OGR - pseudo standard
+To: sales@manifold.net <sales@manifold.net>
+
+
+Hello, it seems OGR/shapelib supports a pseudo-standard for deleting features from shapefiles: 
+
+http://lists.osgeo.org/pipermail/gdal-dev/2016-January/043483.html
+
+Please add a feature to the shapefile importer to apply this filter, or to badge the objects with something like a "shapelib_deleted" attribute. 
+
+To reproduce the behaviour, use the "sample_data.zip" shapefile from here: 
+https://hub.qgis.org/issues/11007
+
+Manifold imports all 9 lines without applying this "deleted" filter. 
+
+In R with rgdal we get a message from GDAL/OGR:
+
+library(rgdal)
+x <- readOGR(".", "vector_edited")
+#OGR data source with driver: ESRI Shapefile 
+#Source: ".", layer: "vector_edited"
+#with 4 features
+#t has 2 fields
+#Warning message:
+#In readOGR(".", "vector_edited") : Deleted feature IDs: 0, 1, 2, 3, 4
+
+## the number of line objects / rows in attribute table
+length(x)
+# [4]
+nrow(as.data.frame(x))
+# [4]
+
+## object IDs revealing the 5 deleted from 0,...4
+row.names(x)
+# [1] "5" "6" "7" "8"
+
+Cheers, Mike. 
